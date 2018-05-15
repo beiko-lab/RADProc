@@ -1,0 +1,5 @@
+SUBDIRS =src
+dist_doc_DATA = README
+network_CXXFLAGS = $(OPENMP_CFLAGS) $(SPARSEHASH_CFLAGS)
+
+
