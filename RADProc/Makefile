@@ -79,7 +79,7 @@ POST_UNINSTALL = :
 subdir = .
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/configure $(am__configure_deps) \
-	$(srcdir)/config.h.in $(dist_doc_DATA) README config/compile \
+	$(srcdir)/config.h.in $(dist_doc_DATA) config/compile \
 	config/depcomp config/install-sh config/missing \
 	$(top_srcdir)/config/compile $(top_srcdir)/config/install-sh \
 	$(top_srcdir)/config/missing
@@ -222,12 +222,12 @@ distuninstallcheck_listfiles = find . -type f -print
 am__distuninstallcheck_listfiles = $(distuninstallcheck_listfiles) \
   | sed 's|^\./|$(prefix)/|' | grep -v '$(infodir)/dir$$'
 distcleancheck_listfiles = find . -type f -print
-ACLOCAL = ${SHELL} /Users/praveen/Dropbox/RADProc/Network_src/config/missing aclocal-1.14
+ACLOCAL = ${SHELL} /Users/praveen/Documents/GitHub/RADProc/RADProc/config/missing aclocal-1.14
 AMTAR = $${TAR-tar}
 AM_DEFAULT_VERBOSITY = 1
-AUTOCONF = ${SHELL} /Users/praveen/Dropbox/RADProc/Network_src/config/missing autoconf
-AUTOHEADER = ${SHELL} /Users/praveen/Dropbox/RADProc/Network_src/config/missing autoheader
-AUTOMAKE = ${SHELL} /Users/praveen/Dropbox/RADProc/Network_src/config/missing automake-1.14
+AUTOCONF = ${SHELL} /Users/praveen/Documents/GitHub/RADProc/RADProc/config/missing autoconf
+AUTOHEADER = ${SHELL} /Users/praveen/Documents/GitHub/RADProc/RADProc/config/missing autoheader
+AUTOMAKE = ${SHELL} /Users/praveen/Documents/GitHub/RADProc/RADProc/config/missing automake-1.14
 AWK = awk
 CC = gcc
 CCDEPMODE = depmode=gcc3
@@ -256,7 +256,7 @@ LDFLAGS =
 LIBOBJS = 
 LIBS = -lz -lgomp 
 LTLIBOBJS = 
-MAKEINFO = ${SHELL} /Users/praveen/Dropbox/RADProc/Network_src/config/missing makeinfo
+MAKEINFO = ${SHELL} /Users/praveen/Documents/GitHub/RADProc/RADProc/config/missing makeinfo
 MKDIR_P = config/install-sh -c -d
 OBJEXT = o
 OPENMP_CFLAGS = -fopenmp
@@ -273,10 +273,10 @@ SHELL = /bin/sh
 SPARSEHASH_CFLAGS = 
 STRIP = 
 VERSION = 1.0
-abs_builddir = /Users/praveen/Dropbox/RADProc/Network_src
-abs_srcdir = /Users/praveen/Dropbox/RADProc/Network_src
-abs_top_builddir = /Users/praveen/Dropbox/RADProc/Network_src
-abs_top_srcdir = /Users/praveen/Dropbox/RADProc/Network_src
+abs_builddir = /Users/praveen/Documents/GitHub/RADProc/RADProc
+abs_srcdir = /Users/praveen/Documents/GitHub/RADProc/RADProc
+abs_top_builddir = /Users/praveen/Documents/GitHub/RADProc/RADProc
+abs_top_srcdir = /Users/praveen/Documents/GitHub/RADProc/RADProc
 ac_ct_CC = gcc
 ac_ct_CXX = g++
 am__include = include
@@ -296,7 +296,7 @@ host_alias =
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-install_sh = ${SHELL} /Users/praveen/Dropbox/RADProc/Network_src/config/install-sh
+install_sh = ${SHELL} /Users/praveen/Documents/GitHub/RADProc/RADProc/config/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale

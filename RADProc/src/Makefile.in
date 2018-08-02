@@ -91,7 +91,7 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
-am_RADProc_OBJECTS = RADProc-network.$(OBJEXT) \
+am_RADProc_OBJECTS = RADProc-RADProc.$(OBJEXT) \
 	RADProc-DNASeq.$(OBJEXT) RADProc-input.$(OBJEXT) \
 	RADProc-tags.$(OBJEXT)
 RADProc_OBJECTS = $(am_RADProc_OBJECTS)
@@ -264,7 +264,7 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-RADProc_SOURCES = network.h network.cc constants.h DNASeq.h DNASeq.cc input.h input.cc FastaI.h FastqI.h gzFasta.h gzFastq.h tags.h tags.cc
+RADProc_SOURCES = RADProc.h RADProc.cc constants.h DNASeq.h DNASeq.cc input.h input.cc FastaI.h FastqI.h gzFasta.h gzFastq.h tags.h tags.cc
 RADProc_CXXFLAGS = $(OPENMP_CFLAGS) $(SPARSEHASH_CFLAGS)
 RADProc_LDFLAGS = $(OPENMP_CFLAGS)
 all: all-am
@@ -355,8 +355,8 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/RADProc-DNASeq.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/RADProc-RADProc.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/RADProc-input.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/RADProc-network.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/RADProc-tags.Po@am__quote@
 
 .cc.o:
@@ -375,19 +375,19 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
 
-RADProc-network.o: network.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(RADProc_CXXFLAGS) $(CXXFLAGS) -MT RADProc-network.o -MD -MP -MF $(DEPDIR)/RADProc-network.Tpo -c -o RADProc-network.o `test -f 'network.cc' || echo '$(srcdir)/'`network.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/RADProc-network.Tpo $(DEPDIR)/RADProc-network.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='network.cc' object='RADProc-network.o' libtool=no @AMDEPBACKSLASH@
+RADProc-RADProc.o: RADProc.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(RADProc_CXXFLAGS) $(CXXFLAGS) -MT RADProc-RADProc.o -MD -MP -MF $(DEPDIR)/RADProc-RADProc.Tpo -c -o RADProc-RADProc.o `test -f 'RADProc.cc' || echo '$(srcdir)/'`RADProc.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/RADProc-RADProc.Tpo $(DEPDIR)/RADProc-RADProc.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='RADProc.cc' object='RADProc-RADProc.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(RADProc_CXXFLAGS) $(CXXFLAGS) -c -o RADProc-network.o `test -f 'network.cc' || echo '$(srcdir)/'`network.cc
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(RADProc_CXXFLAGS) $(CXXFLAGS) -c -o RADProc-RADProc.o `test -f 'RADProc.cc' || echo '$(srcdir)/'`RADProc.cc
 
-RADProc-network.obj: network.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(RADProc_CXXFLAGS) $(CXXFLAGS) -MT RADProc-network.obj -MD -MP -MF $(DEPDIR)/RADProc-network.Tpo -c -o RADProc-network.obj `if test -f 'network.cc'; then $(CYGPATH_W) 'network.cc'; else $(CYGPATH_W) '$(srcdir)/network.cc'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/RADProc-network.Tpo $(DEPDIR)/RADProc-network.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='network.cc' object='RADProc-network.obj' libtool=no @AMDEPBACKSLASH@
+RADProc-RADProc.obj: RADProc.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(RADProc_CXXFLAGS) $(CXXFLAGS) -MT RADProc-RADProc.obj -MD -MP -MF $(DEPDIR)/RADProc-RADProc.Tpo -c -o RADProc-RADProc.obj `if test -f 'RADProc.cc'; then $(CYGPATH_W) 'RADProc.cc'; else $(CYGPATH_W) '$(srcdir)/RADProc.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/RADProc-RADProc.Tpo $(DEPDIR)/RADProc-RADProc.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='RADProc.cc' object='RADProc-RADProc.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(RADProc_CXXFLAGS) $(CXXFLAGS) -c -o RADProc-network.obj `if test -f 'network.cc'; then $(CYGPATH_W) 'network.cc'; else $(CYGPATH_W) '$(srcdir)/network.cc'; fi`
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(RADProc_CXXFLAGS) $(CXXFLAGS) -c -o RADProc-RADProc.obj `if test -f 'RADProc.cc'; then $(CYGPATH_W) 'RADProc.cc'; else $(CYGPATH_W) '$(srcdir)/RADProc.cc'; fi`
 
 RADProc-DNASeq.o: DNASeq.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(RADProc_CXXFLAGS) $(CXXFLAGS) -MT RADProc-DNASeq.o -MD -MP -MF $(DEPDIR)/RADProc-DNASeq.Tpo -c -o RADProc-DNASeq.o `test -f 'DNASeq.cc' || echo '$(srcdir)/'`DNASeq.cc

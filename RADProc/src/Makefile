@@ -91,7 +91,7 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
-am_RADProc_OBJECTS = RADProc-network.$(OBJEXT) \
+am_RADProc_OBJECTS = RADProc-RADProc.$(OBJEXT) \
 	RADProc-DNASeq.$(OBJEXT) RADProc-input.$(OBJEXT) \
 	RADProc-tags.$(OBJEXT)
 RADProc_OBJECTS = $(am_RADProc_OBJECTS)
@@ -170,12 +170,12 @@ am__define_uniq_tagged_files = \
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
-ACLOCAL = ${SHELL} /Users/praveen/Dropbox/RADProc/Network_src/config/missing aclocal-1.14
+ACLOCAL = ${SHELL} /Users/praveen/Documents/GitHub/RADProc/RADProc/config/missing aclocal-1.14
 AMTAR = $${TAR-tar}
 AM_DEFAULT_VERBOSITY = 1
-AUTOCONF = ${SHELL} /Users/praveen/Dropbox/RADProc/Network_src/config/missing autoconf
-AUTOHEADER = ${SHELL} /Users/praveen/Dropbox/RADProc/Network_src/config/missing autoheader
-AUTOMAKE = ${SHELL} /Users/praveen/Dropbox/RADProc/Network_src/config/missing automake-1.14
+AUTOCONF = ${SHELL} /Users/praveen/Documents/GitHub/RADProc/RADProc/config/missing autoconf
+AUTOHEADER = ${SHELL} /Users/praveen/Documents/GitHub/RADProc/RADProc/config/missing autoheader
+AUTOMAKE = ${SHELL} /Users/praveen/Documents/GitHub/RADProc/RADProc/config/missing automake-1.14
 AWK = awk
 CC = gcc
 CCDEPMODE = depmode=gcc3
@@ -204,7 +204,7 @@ LDFLAGS =
 LIBOBJS = 
 LIBS = -lz -lgomp 
 LTLIBOBJS = 
-MAKEINFO = ${SHELL} /Users/praveen/Dropbox/RADProc/Network_src/config/missing makeinfo
+MAKEINFO = ${SHELL} /Users/praveen/Documents/GitHub/RADProc/RADProc/config/missing makeinfo
 MKDIR_P = ../config/install-sh -c -d
 OBJEXT = o
 OPENMP_CFLAGS = -fopenmp
@@ -221,10 +221,10 @@ SHELL = /bin/sh
 SPARSEHASH_CFLAGS = 
 STRIP = 
 VERSION = 1.0
-abs_builddir = /Users/praveen/Dropbox/RADProc/Network_src/src
-abs_srcdir = /Users/praveen/Dropbox/RADProc/Network_src/src
-abs_top_builddir = /Users/praveen/Dropbox/RADProc/Network_src
-abs_top_srcdir = /Users/praveen/Dropbox/RADProc/Network_src
+abs_builddir = /Users/praveen/Documents/GitHub/RADProc/RADProc/src
+abs_srcdir = /Users/praveen/Documents/GitHub/RADProc/RADProc/src
+abs_top_builddir = /Users/praveen/Documents/GitHub/RADProc/RADProc
+abs_top_srcdir = /Users/praveen/Documents/GitHub/RADProc/RADProc
 ac_ct_CC = gcc
 ac_ct_CXX = g++
 am__include = include
@@ -244,7 +244,7 @@ host_alias =
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-install_sh = ${SHELL} /Users/praveen/Dropbox/RADProc/Network_src/config/install-sh
+install_sh = ${SHELL} /Users/praveen/Documents/GitHub/RADProc/RADProc/config/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale
@@ -264,7 +264,7 @@ target_alias =
 top_build_prefix = ../
 top_builddir = ..
 top_srcdir = ..
-RADProc_SOURCES = network.h network.cc constants.h DNASeq.h DNASeq.cc input.h input.cc FastaI.h FastqI.h gzFasta.h gzFastq.h tags.h tags.cc
+RADProc_SOURCES = RADProc.h RADProc.cc constants.h DNASeq.h DNASeq.cc input.h input.cc FastaI.h FastqI.h gzFasta.h gzFastq.h tags.h tags.cc
 RADProc_CXXFLAGS = $(OPENMP_CFLAGS) $(SPARSEHASH_CFLAGS)
 RADProc_LDFLAGS = $(OPENMP_CFLAGS)
 all: all-am
@@ -355,8 +355,8 @@ distclean-compile:
 	-rm -f *.tab.c
 
 include ./$(DEPDIR)/RADProc-DNASeq.Po
+include ./$(DEPDIR)/RADProc-RADProc.Po
 include ./$(DEPDIR)/RADProc-input.Po
-include ./$(DEPDIR)/RADProc-network.Po
 include ./$(DEPDIR)/RADProc-tags.Po
 
 .cc.o:
@@ -375,19 +375,19 @@ include ./$(DEPDIR)/RADProc-tags.Po
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
 #	$(AM_V_CXX_no)$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
 
-RADProc-network.o: network.cc
-	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(RADProc_CXXFLAGS) $(CXXFLAGS) -MT RADProc-network.o -MD -MP -MF $(DEPDIR)/RADProc-network.Tpo -c -o RADProc-network.o `test -f 'network.cc' || echo '$(srcdir)/'`network.cc
-	$(AM_V_at)$(am__mv) $(DEPDIR)/RADProc-network.Tpo $(DEPDIR)/RADProc-network.Po
-#	$(AM_V_CXX)source='network.cc' object='RADProc-network.o' libtool=no \
+RADProc-RADProc.o: RADProc.cc
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(RADProc_CXXFLAGS) $(CXXFLAGS) -MT RADProc-RADProc.o -MD -MP -MF $(DEPDIR)/RADProc-RADProc.Tpo -c -o RADProc-RADProc.o `test -f 'RADProc.cc' || echo '$(srcdir)/'`RADProc.cc
+	$(AM_V_at)$(am__mv) $(DEPDIR)/RADProc-RADProc.Tpo $(DEPDIR)/RADProc-RADProc.Po
+#	$(AM_V_CXX)source='RADProc.cc' object='RADProc-RADProc.o' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(RADProc_CXXFLAGS) $(CXXFLAGS) -c -o RADProc-network.o `test -f 'network.cc' || echo '$(srcdir)/'`network.cc
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(RADProc_CXXFLAGS) $(CXXFLAGS) -c -o RADProc-RADProc.o `test -f 'RADProc.cc' || echo '$(srcdir)/'`RADProc.cc
 
-RADProc-network.obj: network.cc
-	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(RADProc_CXXFLAGS) $(CXXFLAGS) -MT RADProc-network.obj -MD -MP -MF $(DEPDIR)/RADProc-network.Tpo -c -o RADProc-network.obj `if test -f 'network.cc'; then $(CYGPATH_W) 'network.cc'; else $(CYGPATH_W) '$(srcdir)/network.cc'; fi`
-	$(AM_V_at)$(am__mv) $(DEPDIR)/RADProc-network.Tpo $(DEPDIR)/RADProc-network.Po
-#	$(AM_V_CXX)source='network.cc' object='RADProc-network.obj' libtool=no \
+RADProc-RADProc.obj: RADProc.cc
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(RADProc_CXXFLAGS) $(CXXFLAGS) -MT RADProc-RADProc.obj -MD -MP -MF $(DEPDIR)/RADProc-RADProc.Tpo -c -o RADProc-RADProc.obj `if test -f 'RADProc.cc'; then $(CYGPATH_W) 'RADProc.cc'; else $(CYGPATH_W) '$(srcdir)/RADProc.cc'; fi`
+	$(AM_V_at)$(am__mv) $(DEPDIR)/RADProc-RADProc.Tpo $(DEPDIR)/RADProc-RADProc.Po
+#	$(AM_V_CXX)source='RADProc.cc' object='RADProc-RADProc.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(RADProc_CXXFLAGS) $(CXXFLAGS) -c -o RADProc-network.obj `if test -f 'network.cc'; then $(CYGPATH_W) 'network.cc'; else $(CYGPATH_W) '$(srcdir)/network.cc'; fi`
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(RADProc_CXXFLAGS) $(CXXFLAGS) -c -o RADProc-RADProc.obj `if test -f 'RADProc.cc'; then $(CYGPATH_W) 'RADProc.cc'; else $(CYGPATH_W) '$(srcdir)/RADProc.cc'; fi`
 
 RADProc-DNASeq.o: DNASeq.cc
 	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(RADProc_CXXFLAGS) $(CXXFLAGS) -MT RADProc-DNASeq.o -MD -MP -MF $(DEPDIR)/RADProc-DNASeq.Tpo -c -o RADProc-DNASeq.o `test -f 'DNASeq.cc' || echo '$(srcdir)/'`DNASeq.cc

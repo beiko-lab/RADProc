@@ -1,5 +1,29 @@
+// -*-mode:c++; c-style:k&r; c-basic-offset:4;-*-
+//
+// Copyright 2018, Praveen Nadukkalam Ravindran <pravindran@dal.ca>
+//
+// This file is part of RADProc.
+//
+// RADProc is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// RADProc is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with RADProc.  If not, see <http://www.gnu.org/licenses/>.
+//
 
-#include "network.h"
+//
+// RADProc -- De novo locus assembler and catalog builder for RADSeq data
+//
+
+
+#include "RADProc.h"
 
 string    in_file;
 string    in_file_type;
@@ -10,6 +34,7 @@ bool      call_sec_hapl     = true;
 int       min_merge_cov     = 3;
 int       max_rem_dist      = -1;
 double    min_sam_per     = 0.1;
+int       max_stacks = 3;
 int    min_depth     = 2;
 int psweep =0;
 double alpha              = 0.05;
@@ -25,19 +50,22 @@ int tot_loci_more_3_snps = 0;
 int id = 0;
 std::ofstream log_file;
 
+
+
 void help() {
-    std::cerr << "network" << "1.0" << "\n"
-              << "network -t infile_type -f file_path [-o path][-a][-M max_dist] [-m min_cov][-p num_threads][-S min_sam][-D min_depth][-h]" << "\n"
+    std::cerr << "RADProc" << "1.0" << "\n"
+              << "RADProc -t infile_type -f file_path [-o path][-a psweep][-M max_dist] [-m min_cov][-p num_threads] [-x max_stacks][-S min_sam][-D min_depth][-h]" << "\n"
               << "  t: Input file Type. Supported types: fasta, fastq, gzfasta, or gzfastq.\n"
               << "  f: Input file path.\n"
 	          << "  o: Output path to write results.\n"
-	          << "  a: Parameter sweep mode on.\n"
+	          << "  a: Enable parameter sweep mode.\n"
 	          << "  M: Maximum distance (in nucleotides) allowed between stacks to form network.\n"
 	          << "  m: Minimum coverage depth.\n"
-              << "  p: enable parallel execution with num_threads threads.\n"
+              << "  p: Enable parallel execution with num_threads threads.\n"
+              << "  x: Maximum number stacks per locus.\n"
               << "  S: Minimum sample percentage.\n"
               << "  D: Minimum average coverage depth.\n"
-	          << "  h: display this help messsage.\n";
+	          << "  h: Display this help messsage.\n";
 
 
     exit(0);
@@ -55,6 +83,7 @@ int parse_command_line(int argc, char* argv[]) {
 	    {"max_dist",     required_argument, NULL, 'M'},
 	    {"min_cov",     required_argument, NULL, 'm'},
 	    {"num_threads",  required_argument, NULL, 'p'},
+	    {"max_stacks",  required_argument, NULL, 'x'},
 	    {"min_sam",  required_argument, NULL, 'S'},
 	    {"min_depth",  required_argument, NULL, 'D'},
 	    {"Parameter search",  no_argument, NULL, 'a'},
@@ -64,7 +93,7 @@ int parse_command_line(int argc, char* argv[]) {
 	// getopt_long stores the option index here.
 	int option_index = 0;
         count++;
-	c = getopt_long(argc, argv, "h:f:t:o:p:M:m:S:D:a:", long_options, &option_index);
+	c = getopt_long(argc, argv, "haf:t:o:p:x:M:m:S:D:", long_options, &option_index);
 	// Detect the end of the options.
 	
         if (c == -1)
@@ -113,8 +142,11 @@ int parse_command_line(int argc, char* argv[]) {
 	case 'p':
 	    num_threads = atoi(optarg);
 	    break;
+	case 'x':
+	      max_stacks = atoi(optarg);
+	      break;   
 	case 'a':
-	    psweep = 1;
+	    psweep = 1; //atoi(optarg);
 	    break;    
 	case '?':
 	    // getopt_long already printed an error message.
@@ -590,7 +622,7 @@ for (int i = 0; i < (int)keys.size(); i++) {
 
 
 
-int call_consensus(map<string, vector<string> > &merged, map<string, Tag *> ptags,map<int, CTag *> &ctags,map<string,set<int> > &ctag_alleles_map, int sample_id, string sample_name, string path, int cov, string param) {
+int call_consensus(map<string, vector<string> > &merged, map<string, Tag *> ptags,map<int, CTag *> &ctags,map<string,set<int> > &ctag_alleles_map, int sample_id, string sample_name, string path, int cov, string param,  ofstream &stats_fh) {
   
     std::ofstream snp_s,al,mods, tags, cat_snps, cat_all, mat;
     std::map<string, std::vector<string> >::iterator it;
@@ -606,6 +638,9 @@ int call_consensus(map<string, vector<string> > &merged, map<string, Tag *> ptag
     vector<SNP*>::iterator snps_it1;
     std::vector<std::pair <std::string, int > >::iterator cat_alleles_it;
   
+    
+  
+  
     string a;
     string snp_file;
     string all_file;
@@ -614,6 +649,10 @@ int call_consensus(map<string, vector<string> > &merged, map<string, Tag *> ptag
     string matches_file;
     string cat_snps_file;
     string cat_all_file;
+    
+    
+    
+
     
 	 map<int,int> num_snps;
     map<int,int>::iterator num_snps_it;
@@ -632,7 +671,7 @@ int call_consensus(map<string, vector<string> > &merged, map<string, Tag *> ptag
     mod_file = path +sample_name+".models.tsv";
     tags_file = path +sample_name+".tags.tsv";
     matches_file = path +sample_name+".matches.tsv";
-
+     
     
     int tot_num_snps=0;
     int tot_poly_loci=0;
@@ -642,11 +681,18 @@ int call_consensus(map<string, vector<string> > &merged, map<string, Tag *> ptag
     map<int,vector<int> > ctag_matches;
     map<string,set<int> >::iterator ctag_alleles_map_it;
     
+
+    
      vector<pair<string, int> >::iterator dist_it; 
+     
+   
+     
+     
+     
      
    for (it = merged.begin(); it != merged.end(); it++) 
        {
-       if ( (it->second.size() >= 1) && (it ->second.size() <= 4) )
+       if ( (it->second.size() >= 1) && (it ->second.size() <= max_stacks) )
     
         {
     	keys.push_back(it->first);
@@ -669,13 +715,16 @@ int call_consensus(map<string, vector<string> > &merged, map<string, Tag *> ptag
     
 
     log << "# RAD2POP version 1.0 generated on " << date << "\n";
+    
+   
+ 
         tags << log.str();
         mods << log.str();
         snp_s << log.str();
         al << log.str();
     int i=0, id;
     int count=0;
-     cerr << "\n" << "Calling consensus for " << sample_id << "\n\n";
+     cerr << "\n" << "Calling consensus for " << sample_name << "\n\n";
 	std::vector<string> merged_tag;
 	std::vector<string>::iterator merged_tag_it;
 	map<int, map <int, vector<string> > > reads_map;
@@ -1074,11 +1123,13 @@ int call_consensus(map<string, vector<string> > &merged, map<string, Tag *> ptag
      
      if (poly_flag == 1) tot_poly_loci++;
 	}
- 
+
+stats_fh << sample_name << "\t" << param << "\t" << num_loci << "\t" << tot_poly_loci << "\t" << tot_num_snps << "\n"; 
 
 cerr << "\n" << "Number of loci: " << num_loci << "\n";
-cerr << "\n" << "SNPs " <<  tot_num_snps  <<"\n";
 cerr << "\n" << "Polymorphic loci: " << tot_poly_loci << "\n";
+cerr << "\n" << "SNPs " <<  tot_num_snps  <<"\n";
+
 
 return 0;
 }
@@ -1738,7 +1789,7 @@ int write_catalog(map<int, CTag *> &catalog, string path) {
     return 0;
 }
 
-int mergeStacks(std::map<string, Tag *>  &ptags,vector<string> &samples, int dist, int cov)
+int mergeStacks(std::map<string, Tag *>  &ptags,vector<string> &samples, int dist, int cov,  ofstream &stats_fh)
 {
 
 std::map<int, CTag *> ctags;
@@ -1889,7 +1940,7 @@ vector<string> mkeys;
 
        cerr  << "# of sec merged stacks" << "\t"<< merged_sec_cnt << '\n';
 		ind_id = samples[sample-1];
-		call_consensus(merged, ptags,ctags,ctag_alleles_map,sample, ind_id, path, cov, param);
+		call_consensus(merged, ptags,ctags,ctag_alleles_map,sample, ind_id, path, cov, param, stats_fh);
         cerr << "catalog size: " << ctags.size() << "\n";
         merged.clear();
         matches.clear();
@@ -1905,6 +1956,15 @@ ctags.clear();
 int main (int argc, char* argv[]) 
 {
  parse_command_line(argc, argv);
+ 
+
+  std::cerr  << " Parameter sweep mode: " << (psweep == true ? "on"  : "off") << "\n"
+	          << " Maximum distance (in nucleotides) allowed between stacks to form network: "<< max_nwk_dist  << "\n"
+	          << " Minimum coverage depth: " << min_merge_cov << "\n" 
+              << " Maximum number stacks per locus: " << max_stacks << "\n"
+              << " Minimum sample percentage: " << min_sam_per << "\n"
+              << " Minimum average coverage depth: " << min_depth << "\n";
+ 
  
  #ifdef _OPENMP
  omp_set_num_threads(num_threads);
@@ -1922,8 +1982,26 @@ int main (int argc, char* argv[])
  int i =0, sample_id = 1;
  vector<string> samples;
  vector<int>::iterator cov_it;
-
+ string stats_file;  
  files = read_directory (in_file);
+ 
+  time_t       rawtime;
+    struct tm   *timeinfo;
+    char         date[32];
+    time(&rawtime);
+    timeinfo = localtime(&rawtime);
+    strftime(date, 32, "%F %T", timeinfo); 
+    stats_file = out_path + "De_novo_stats";
+    ofstream stats_fh(stats_file.c_str(), ofstream::out);
+     
+     if (stats_fh.fail()) {
+        cerr << "Error opening Stats file '" << stats_file << "'\n";
+	exit(1);
+    }
+	
+	stats_fh << "# RAD2POP version 1.0 generated on " << date << "\n";
+    stats_fh << "Sample ID" << "\t" << "Parameters" << "\t" << "Number of Loci " << "\t" << "Number of Polymorphic Loci " << "\t" << "Number of SNPs " << "\n";
+
  
  
 for ( files_it = files.begin(); files_it != files.end(); files_it++)
@@ -2015,13 +2093,13 @@ for ( int i = 2; i <= max_nwk_dist-2; i++)
 			{
 				cerr << "\n"<< "Maximum Nucleotide distance M:" << "\t" <<i;
 				cerr << "\n"<< "Minimum Coverage m:" << "\t" << j;
-				mergeStacks(ptags, samples,i,j);
+				mergeStacks(ptags, samples,i,j,stats_fh);
 			}
 	}
 }
 else
 {
-mergeStacks(ptags, samples,max_nwk_dist-2,min_merge_cov);
+mergeStacks(ptags, samples,max_nwk_dist-2,min_merge_cov, stats_fh);
 }
 cerr << "\n"<< "Process Completed !!!" << "\n";
 return 0;
