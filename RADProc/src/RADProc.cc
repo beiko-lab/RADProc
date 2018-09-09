@@ -30,6 +30,7 @@ string    in_file_type;
 string    out_path;
 int       num_threads       = 1;
 int       max_nwk_dist     = 4;
+int       max_cat_dist     = 1;
 bool      call_sec_hapl     = true;
 int       min_merge_cov     = 3;
 int       max_rem_dist      = -1;
@@ -54,13 +55,14 @@ std::ofstream log_file;
 
 void help() {
     std::cerr << "RADProc" << "1.0" << "\n"
-              << "RADProc -t infile_type -f file_path [-o path][-a psweep][-M max_dist] [-m min_cov][-p num_threads] [-x max_stacks][-S min_sam][-D min_depth][-h]" << "\n"
+              << "RADProc -t infile_type -f file_path [-o path][-a psweep][-M max_dist] [-m min_cov][-n max_cat_dist][-p num_threads] [-x max_stacks][-S min_sam][-D min_depth][-h]" << "\n"
               << "  t: Input file Type. Supported types: fasta, fastq, gzfasta, or gzfastq.\n"
               << "  f: Input file path.\n"
 	          << "  o: Output path to write results.\n"
 	          << "  a: Enable parameter sweep mode.\n"
 	          << "  M: Maximum distance (in nucleotides) allowed between stacks to form network.\n"
 	          << "  m: Minimum coverage depth.\n"
+	          << "  n: Maximum distance (in nucleotides) allowed between catalog loci to merge.\n"
               << "  p: Enable parallel execution with num_threads threads.\n"
               << "  x: Maximum number stacks per locus.\n"
               << "  S: Minimum sample percentage.\n"
@@ -78,10 +80,11 @@ int parse_command_line(int argc, char* argv[]) {
 	static struct option long_options[] = {
 	    {"help",         no_argument,       NULL, 'h'},
 	    {"file",         required_argument, NULL, 'f'},
-            {"infile_type",  required_argument, NULL, 't'},
+        {"infile_type",  required_argument, NULL, 't'},
 	    {"outpath",      required_argument, NULL, 'o'},
 	    {"max_dist",     required_argument, NULL, 'M'},
 	    {"min_cov",     required_argument, NULL, 'm'},
+	    {"max_cat_dist",     required_argument, NULL, 'n'},
 	    {"num_threads",  required_argument, NULL, 'p'},
 	    {"max_stacks",  required_argument, NULL, 'x'},
 	    {"min_sam",  required_argument, NULL, 'S'},
@@ -133,6 +136,9 @@ int parse_command_line(int argc, char* argv[]) {
 	    break;
 	case 'm':
 	    min_merge_cov = atoi(optarg);
+	    break; 
+	case 'n':
+	    max_cat_dist = atoi(optarg);
 	    break; 
 	case 'S':
 	    min_sam_per = atof(optarg);
@@ -917,7 +923,7 @@ int call_consensus(map<string, vector<string> > &merged, map<string, Tag *> ptag
              for( dist_it = ptag->dist.begin(); dist_it != ptag->dist.end(); dist_it++)
                 {    
                 
-                   if (dist_it->second <= 1)
+                   if (dist_it->second <= max_cat_dist)
                    {  
                    
                     ctag_alleles_map_it = ctag_alleles_map.find(dist_it->first);
@@ -942,7 +948,7 @@ int call_consensus(map<string, vector<string> > &merged, map<string, Tag *> ptag
           
              for( dist_it = ptag->dist.begin(); dist_it != ptag->dist.end(); dist_it++)
                 {              
-                    if (dist_it->second <= 1)
+                    if (dist_it->second <= max_cat_dist)
                    {
                     ctag_alleles_map_it = ctag_alleles_map.find(dist_it->first);
                     if (ctag_alleles_map_it != ctag_alleles_map.end())
@@ -1352,6 +1358,9 @@ vector<string> t_keys;
 std::set<std::string> tags_list;
 set<string>::iterator seed_matches_it;
 
+vector<pair <string, string > > seed_pairs; 
+vector<pair <string, string > >::iterator seed_pairs_it; 
+
 string tag_1, tag_2;
 Tag *tags_1, *tags_2;  
 
@@ -1361,10 +1370,11 @@ for ( tags_it = tags.begin();tags_it != tags.end(); tags_it++)
 
 }
 cerr <<"\n" << "Total Number of Clusters: " << tags.size() << "\n";
-cerr << "Calculationg distances between unique stacks within each cluster..." << "\n";
+//cerr << "Calculationg distances between unique stacks within each cluster..." << "\n";
 
 for (int i=0; i <keys.size(); i++)
 {
+ cerr << "Calculationg distances between unique stacks within each cluster..." << i << "       \r";
 tags_list = tags[keys[i]];
 seed_list.push_back(keys[i]);
   
@@ -1406,15 +1416,20 @@ cerr << "\n";
 d =0;
 
 
+
+int sc=0;
+
 #pragma omp parallel private(tags_1, tags_2)
  { 
   
 #pragma omp for  schedule(dynamic) 
-for (int l=0; l < seed_list.size() ; l++)
+for (int l=0; l < seed_list.size()-1 ; l++)
 {
+
+ cerr << "Calculationg distances between cluster seed sequences... " << l << "       \r";
 tags_1 = ptags[seed_list[l]];
 
-for (int m=0; m < seed_list.size() ; m++)
+for (int m=l+1; m < seed_list.size() ; m++)
 {
 
 tags_2 = ptags[seed_list[m]];
@@ -1422,6 +1437,8 @@ d = dist(tags_1,tags_2, seed_distance);
 if ( d > 0)
 {
 tags_1->seed_matches.insert(tags_2->seq);
+ 
+ 
 
  } 
 }  
@@ -1430,12 +1447,17 @@ tags_1->seed_matches.insert(tags_2->seq);
 
 }
 
-cerr << "Calculationg distances between unique stacks among similar clusters ... " << "\n";
+//cout <<"\n" << "seed_pairs:  " << seed_pairs.size() << "\t" << sc << "\n";
+
+int l = 0;
 for ( ptags_it = ptags.begin(); ptags_it != ptags.end(); ptags_it++)
 {
+
 for ( seed_matches_it = ptags_it->second->seed_matches.begin(); seed_matches_it != ptags_it->second->seed_matches.end(); seed_matches_it++)
 {
-seed_dist_list[ptags_it->first].insert(*seed_matches_it);
+l++;
+ cerr << "Calculationg distances between unique stacks among similar clusters ... " << l << "       \r";
+//seed_dist_list[ptags_it->first].insert(*seed_matches_it);
 for ( merged_tags_it = tags[ptags_it->first].begin();merged_tags_it != tags[ptags_it->first].end(); merged_tags_it++)
   {
  for ( merged_tags_it1 = tags[*seed_matches_it].begin();merged_tags_it1 != tags[*seed_matches_it].end(); merged_tags_it1++)
@@ -1970,6 +1992,10 @@ int main (int argc, char* argv[])
  omp_set_num_threads(num_threads);
  #endif
   
+  
+ map<int,int> sample_count;
+ map<int,int>::iterator sample_count_it;
+   
 
  map<string,int>::iterator radtags_it;
  std::map<string, Tag *> ptags;
@@ -2009,6 +2035,8 @@ for ( files_it = files.begin(); files_it != files.end(); files_it++)
   		if(files_it->find("fq") != std::string::npos)
 			{  
     			i=0;
+    			
+    			
     			map<string,int> radtags;
     			string filename = in_file+"/"+ *files_it;
     			string samplename = *files_it;
@@ -2023,6 +2051,7 @@ for ( files_it = files.begin(); files_it != files.end(); files_it++)
  			for (radtags_it = radtags.begin(); radtags_it != radtags.end(); radtags_it++) 
  				{
        				if (i % 10 == 0) cerr << "Loading stack " << i << "       \r";
+       				 //if ( i == 10000) break;
     				if (radtags_it->second > 1) 
     					{
              				ptags_it = ptags.find(radtags_it->first);
@@ -2071,18 +2100,24 @@ for (ptags_it = ptags.begin(); ptags_it != ptags.end(); )
 			}
 		avg_cov = sum_cov/sample_size;
 		sum_cov = 0;
-		if(this_it->second->sample_ids.size() <= min_sam_fil )
+	
+	    	
+		if (this_it->second->sample_ids.size() <= min_sam_fil ) 
 			{
  				if (avg_cov <= min_depth) 
-  					{
+  				 {
   						ptags.erase(this_it);
-  					}
+  				 }
 			}
 
 	}
 
 cerr << "Number of Unique stacks (after filter):" << ptags.size() <<"\n";
-
+/*for ( sample_count_it = sample_count.begin(); sample_count_it != sample_count.end(); sample_count_it++)
+{  
+  cout << sample_count_it->first << "\t" << sample_count_it->second <<"\n";
+}
+*/
 build_kmer_clusters(ptags);
  
 if ( psweep)
