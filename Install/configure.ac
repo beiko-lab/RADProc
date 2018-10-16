@@ -2,10 +2,10 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
-AC_INIT([network], [1.0])
+AC_INIT([RADProc], [1.0])
 AC_CONFIG_AUX_DIR([config])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign parallel-tests subdir-objects])
-AC_CONFIG_SRCDIR([src/network.cc])
+AC_CONFIG_SRCDIR([src/RADProc.cc])
 AC_CONFIG_HEADERS([config.h])
 m4_pattern_allow([AC_OPENMP])
 

@@ -91,19 +91,19 @@
 #define HAVE__BOOL 1
 
 /* Name of package */
-#define PACKAGE "network"
+#define PACKAGE "radproc"
 
 /* Define to the address where bug reports for this package should be sent. */
 #define PACKAGE_BUGREPORT ""
 
 /* Define to the full name of this package. */
-#define PACKAGE_NAME "network"
+#define PACKAGE_NAME "RADProc"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "network 1.0"
+#define PACKAGE_STRING "RADProc 1.0"
 
 /* Define to the one symbol short name of this package. */
-#define PACKAGE_TARNAME "network"
+#define PACKAGE_TARNAME "radproc"
 
 /* Define to the home page for this package. */
 #define PACKAGE_URL ""

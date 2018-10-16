@@ -60,10 +60,10 @@ am__make_running_with_option = \
   test $$has_opt = yes
 am__make_dryrun = (target_option=n; $(am__make_running_with_option))
 am__make_keepgoing = (target_option=k; $(am__make_running_with_option))
-pkgdatadir = $(datadir)/network
-pkgincludedir = $(includedir)/network
-pkglibdir = $(libdir)/network
-pkglibexecdir = $(libexecdir)/network
+pkgdatadir = $(datadir)/radproc
+pkgincludedir = $(includedir)/radproc
+pkglibdir = $(libdir)/radproc
+pkglibexecdir = $(libexecdir)/radproc
 am__cd = CDPATH="$${ZSH_VERSION+.}$(PATH_SEPARATOR)" && cd
 install_sh_DATA = $(install_sh) -c -m 644
 install_sh_PROGRAM = $(install_sh) -c
@@ -208,11 +208,11 @@ MAKEINFO = ${SHELL} /Users/praveen/Documents/GitHub/RADProc/RADProc/config/missi
 MKDIR_P = ../config/install-sh -c -d
 OBJEXT = o
 OPENMP_CFLAGS = -fopenmp
-PACKAGE = network
+PACKAGE = radproc
 PACKAGE_BUGREPORT = 
-PACKAGE_NAME = network
-PACKAGE_STRING = network 1.0
-PACKAGE_TARNAME = network
+PACKAGE_NAME = RADProc
+PACKAGE_STRING = RADProc 1.0
+PACKAGE_TARNAME = radproc
 PACKAGE_URL = 
 PACKAGE_VERSION = 1.0
 PATH_SEPARATOR = :
