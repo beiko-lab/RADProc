@@ -21,12 +21,13 @@ In the Terminal:
 
 •	Traverse to the folder "Install".
 
-    $ ./configure
+    $autoreconf --install
+    $sh ./configure
     $ make
     root access or sudo 
     $ make install
 
-PMERGE will be installed in the path “ /usr/local/bin “
+RADProc will be installed in the path “ /usr/local/bin “
 
 
 
