@@ -298,6 +298,8 @@ call_multinomial_snp(vector<SNP *> &ctag_snps, vector<SNP *> &snps, int col, map
  
 	    snps.push_back(snp);
 	    //delete snp;
+	
+	    
 	}
 	res = snp_type_hom;
 
@@ -315,6 +317,8 @@ call_multinomial_snp(vector<SNP *> &ctag_snps, vector<SNP *> &snps, int col, map
 
 	    snps.push_back(snp);
 	    //delete snp;
+	    
+
 	}
 
 	res = snp_type_unk;
@@ -877,7 +881,7 @@ int call_consensus(map<string, vector<string> > &merged, map<string, Tag *> ptag
          for(al_it = alleles.begin(); al_it != alleles.end(); al_it++)
          {
          
-         al << "0" << "\t" << sample_id-1 << "\t" << i <<"\t"<<al_it->first <<"\t"<< (al_it->second/height)*100 <<"\t" <<al_it->second <<"\n";
+         al << "0" << "\t" << sample_id-1 << "\t" << i <<"\t"<<al_it->first <<"\t"<< ((double)al_it->second/height)*100 <<"\t" <<al_it->second <<"\n";
 	
          }
          
@@ -1370,11 +1374,11 @@ for ( tags_it = tags.begin();tags_it != tags.end(); tags_it++)
 
 }
 cerr <<"\n" << "Total Number of Clusters: " << tags.size() << "\n";
-//cerr << "Calculationg distances between unique stacks within each cluster..." << "\n";
+cerr << "Calculationg distances between unique stacks within each cluster..." << "\n";
 
 for (int i=0; i <keys.size(); i++)
 {
- cerr << "Calculationg distances between unique stacks within each cluster..." << i << "       \r";
+ //cerr << "Calculationg distances between unique stacks within each cluster..." << i << "       \r";
 tags_list = tags[keys[i]];
 seed_list.push_back(keys[i]);
   
@@ -1418,6 +1422,8 @@ d =0;
 
 
 int sc=0;
+cerr << "Calculationg distances between cluster seed sequences... \n";
+
 
 #pragma omp parallel private(tags_1, tags_2)
  { 
@@ -1426,7 +1432,7 @@ int sc=0;
 for (int l=0; l < seed_list.size()-1 ; l++)
 {
 
- cerr << "Calculationg distances between cluster seed sequences... " << l << "       \r";
+ //cerr << "Calculationg distances between cluster seed sequences... " << l << "       \r";
 tags_1 = ptags[seed_list[l]];
 
 for (int m=l+1; m < seed_list.size() ; m++)
@@ -1448,6 +1454,7 @@ tags_1->seed_matches.insert(tags_2->seq);
 }
 
 //cout <<"\n" << "seed_pairs:  " << seed_pairs.size() << "\t" << sc << "\n";
+cerr << "Calculationg distances between unique stacks among similar clusters ...\n";
 
 int l = 0;
 for ( ptags_it = ptags.begin(); ptags_it != ptags.end(); ptags_it++)
@@ -1456,7 +1463,7 @@ for ( ptags_it = ptags.begin(); ptags_it != ptags.end(); ptags_it++)
 for ( seed_matches_it = ptags_it->second->seed_matches.begin(); seed_matches_it != ptags_it->second->seed_matches.end(); seed_matches_it++)
 {
 l++;
- cerr << "Calculationg distances between unique stacks among similar clusters ... " << l << "       \r";
+ //cerr << "Calculationg distances between unique stacks among similar clusters ... " << l << "       \r";
 //seed_dist_list[ptags_it->first].insert(*seed_matches_it);
 for ( merged_tags_it = tags[ptags_it->first].begin();merged_tags_it != tags[ptags_it->first].end(); merged_tags_it++)
   {
@@ -1638,7 +1645,7 @@ write_simple_output(CTag *tag, ofstream &cat_file, ofstream &snp_file, ofstream 
 	"0"          << "\t" <<
 	sources      << "\t" <<
 	tag->con     << "\t" << 
-        0            << "\t" <<  // These flags are unused in cstacks, but important in ustacks
+        0            << "\t" << 
         0            << "\t" <<
         0            << "\t" <<
         0            << "\n";
@@ -1647,32 +1654,21 @@ write_simple_output(CTag *tag, ofstream &cat_file, ofstream &snp_file, ofstream 
     // Output the SNPs associated with the catalog tag
     //
     for (snp_it = tag->snps.begin(); snp_it != tag->snps.end(); snp_it++) {
-   //if ((*snp_it)->type == snp_type_het)
-    //{
+   if ((*snp_it)->type == snp_type_het)
+    {
 	snp_file << "0"    << "\t" << 
 	    batch_id       << "\t" <<
 	    tag->id        << "\t" << 
 	    (*snp_it)->col << "\t";
-    //snp_file << "E\t";    
-	switch((*snp_it)->type) {
-	case snp_type_het:
-	    snp_file << "E\t";
-	    break;
-	case snp_type_hom:
-	    snp_file << "O\t";
-	    break;
-	default:
-	    snp_file << "U\t";
-	    break;
-	}
-
+    snp_file << "E\t";    
+	
 	snp_file << 
 	    (*snp_it)->lratio << "\t" << 
 	    (*snp_it)->rank_1 << "\t" << 
 	    (*snp_it)->rank_2 << "\t" << 
 	    ((*snp_it)->rank_3 == 0 ? '-' : (*snp_it)->rank_3) << "\t" << 
 	    ((*snp_it)->rank_4 == 0 ? '-' : (*snp_it)->rank_4) << "\n";
-	 // }  
+	 }  
 	 delete *snp_it;
     }
    
@@ -1686,8 +1682,8 @@ write_simple_output(CTag *tag, ofstream &cat_file, ofstream &snp_file, ofstream 
 	    batch_id      << "\t" <<
 	    tag->id      << "\t" <<
 	    all_it->first.c_str() << "\t" <<
-            "0"           << "\t" <<    // These two fields are used in the 
-            "0"           << "\n";      // ustacks/pstacks output, not in cstacks.
+            "0"           << "\t" <<    
+            "0"           << "\n";     
    }
     return 0;
 }
@@ -1775,7 +1771,7 @@ int write_catalog(map<int, CTag *> &catalog, string path) {
     time(&rawtime);
     timeinfo = localtime(&rawtime);
     strftime(date, 32, "%F %T", timeinfo);
-    log << "# RAD2POP version " << 1.42 << "; catalog generated on " << date << "\n"; 
+   log << "# RAD2POP version 1.0; catalog generated on " << date << "\n"; 
     if (gzip) {
         gzputs(gz_tags, log.str().c_str());
         gzputs(gz_snps, log.str().c_str());
@@ -2008,7 +2004,8 @@ int main (int argc, char* argv[])
  int i =0, sample_id = 1;
  vector<string> samples;
  vector<int>::iterator cov_it;
- string stats_file;  
+ string stats_file; 
+ int old_id =0; 
  files = read_directory (in_file);
  
   time_t       rawtime;
@@ -2032,10 +2029,10 @@ int main (int argc, char* argv[])
  
 for ( files_it = files.begin(); files_it != files.end(); files_it++)
 	{   
-  		if(files_it->find("fq") != std::string::npos)
+  		if ( (files_it->find("fq") != std::string::npos) || (files_it->find("fa") != std::string::npos) || (files_it->find("gz") != std::string::npos))
 			{  
     			i=0;
-    			
+    			old_id =0; 
     			
     			map<string,int> radtags;
     			string filename = in_file+"/"+ *files_it;
@@ -2051,20 +2048,20 @@ for ( files_it = files.begin(); files_it != files.end(); files_it++)
  			for (radtags_it = radtags.begin(); radtags_it != radtags.end(); radtags_it++) 
  				{
        				if (i % 10 == 0) cerr << "Loading stack " << i << "       \r";
-       				 //if ( i == 10000) break;
     				if (radtags_it->second > 1) 
     					{
              				ptags_it = ptags.find(radtags_it->first);
              				if (ptags_it == ptags.end())
              					{ 
              						tag = new Tag;
-             						tag -> id = i;
+             						tag -> id = old_id;
              						tag -> seq= radtags_it->first;
              						tag -> len= tag -> seq.length(); 
              						tag -> cov.push_back(radtags_it->second);
              						tag -> sample_ids.push_back(sample_id);
              						tag -> pop_ids.insert(popname);;
-             						ptags[radtags_it->first] = tag;   
+             						ptags[radtags_it->first] = tag; 
+             						old_id = tag -> id+1;  
              					}
              				else
              					{
@@ -2187,7 +2184,7 @@ int load_radtags(map<string,int> &radtags, string filename) {
  
 
     if (len_mismatch)
-	cerr << "  Warning: different sequence lengths detected, this will interfere with Stacks algorithms.\n";
+	cerr << "  Warning: different sequence lengths detected.\n";
 
     //
     // Close the file and delete the Input object.
