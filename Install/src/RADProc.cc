@@ -680,7 +680,7 @@ int call_consensus(map<string, vector<string> > &merged, map<string, Tag *> ptag
     all_file = path +sample_name+".alleles.tsv";
     mod_file = path +sample_name+".models.tsv";
     tags_file = path +sample_name+".tags.tsv";
-    matches_file = path +sample_name+".matches.tsv";
+    //matches_file = path +sample_name+".matches.tsv";
      
     
     int tot_num_snps=0;
@@ -721,7 +721,7 @@ int call_consensus(map<string, vector<string> > &merged, map<string, Tag *> ptag
     al.open(all_file.c_str());
     mods.open(mod_file.c_str());
     tags.open(tags_file.c_str());
-    mat.open(matches_file.c_str());
+   // mat.open(matches_file.c_str());
     
 
     log << "# RAD2POP version 1.0 generated on " << date << "\n";
@@ -2087,6 +2087,8 @@ cerr << "Number of Unique stacks (before filter):" << ptags.size() <<"\n";
 cerr << "Minimum Samples: " <<  min_sam_fil <<"\n"; 
 cerr << "Minimum Average Coverage: " <<  min_depth << "\n"; 
 
+if( ptags.size() > 0)
+{
 for (ptags_it = ptags.begin(); ptags_it != ptags.end(); ) 
 	{
 		std::map<string, Tag *>::iterator this_it = ptags_it++;
@@ -2110,11 +2112,7 @@ for (ptags_it = ptags.begin(); ptags_it != ptags.end(); )
 	}
 
 cerr << "Number of Unique stacks (after filter):" << ptags.size() <<"\n";
-/*for ( sample_count_it = sample_count.begin(); sample_count_it != sample_count.end(); sample_count_it++)
-{  
-  cout << sample_count_it->first << "\t" << sample_count_it->second <<"\n";
-}
-*/
+
 build_kmer_clusters(ptags);
  
 if ( psweep)
@@ -2134,6 +2132,13 @@ else
 mergeStacks(ptags, samples,max_nwk_dist-2,min_merge_cov, stats_fh);
 }
 cerr << "\n"<< "Process Completed !!!" << "\n";
+}
+
+else 
+{
+cerr << "\n"<< "Process Aborted!! No RADTags Loaded !!!" << "\n";
+return 0;
+}
 return 0;
 
 }
