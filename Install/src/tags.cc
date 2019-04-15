@@ -31,12 +31,12 @@ Tag::Tag()  {
 Tag::~Tag() { 
 
 }
-int Tag::add_dist(const string seq, const int dist) {
+int Tag::add_dist(const int id, const int dist) {
     //
     // Store the ID and distance as a pair, ID in the first position,
     // dist in the second.
     //
-    pair<string, int> p(seq, dist);
+    pair<int, int> p(id, dist);
     this->dist.push_back(p);
 
     return 0;

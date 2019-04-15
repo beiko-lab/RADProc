@@ -43,16 +43,16 @@ int id;
 //int cov;
 int len;
 int ascii_value;
-vector<pair<string, int> > dist;
+vector<pair<int, int> > dist;
 vector<int> cov;
 vector<int> sample_ids;
 set<string> pop_ids;
-set<string> seed_matches;
+set<int> seed_matches;
 
 
 Tag();
 ~Tag();
-int  add_dist(const string seq, const int dist);
+int  add_dist(const int id, const int dist);
 };
 
 enum snp_type    {snp_type_het, snp_type_hom, snp_type_unk};

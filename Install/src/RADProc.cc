@@ -632,17 +632,18 @@ for (int i = 0; i < (int)keys.size(); i++) {
 
 
 
-int call_consensus(map<string, vector<string> > &merged, map<string, Tag *> ptags,map<int, CTag *> &ctags,map<string,set<int> > &ctag_alleles_map, int sample_id, string sample_name, string path, int cov, string param,  ofstream &stats_fh) {
+int call_consensus(map<int, vector<int> > &merged, map<int, Tag *> ptags,map<int, CTag *> &ctags,map<int,set<int> > &ctag_alleles_map, int sample_id, string sample_name, string path, int cov, string param,  ofstream &stats_fh) 
+{
   
     std::ofstream snp_s,al,mods, tags, cat_snps, cat_all, mat;
-    std::map<string, std::vector<string> >::iterator it;
-    vector<string> keys;
+    std::map<int, std::vector<int> >::iterator it;
+    vector<int> keys;
     map<int, map<string,int> > alleles_map;   
     map<int, map<string,int> >::iterator als_it;
     map<string,int>::iterator al_it;
     map<int, vector<SNP *> > snps_map;
     map<int, vector<SNP *> >::iterator snps_it;
-    map<string, vector<string> >::iterator merged_it;
+    map<int, vector<int> >::iterator merged_it;
     
 	std::map<int, std::map< string,int > >::iterator ctags_pop_count_it;
     vector<SNP*>::iterator snps_it1;
@@ -689,11 +690,11 @@ int call_consensus(map<string, vector<string> > &merged, map<string, Tag *> ptag
     
     vector<int>::iterator vec_it;
     map<int,vector<int> > ctag_matches;
-    map<string,set<int> >::iterator ctag_alleles_map_it;
+    map<int,set<int> >::iterator ctag_alleles_map_it;
     
 
     
-     vector<pair<string, int> >::iterator dist_it; 
+     vector<pair<int, int> >::iterator dist_it; 
      
    
      
@@ -735,8 +736,8 @@ int call_consensus(map<string, vector<string> > &merged, map<string, Tag *> ptag
     int i=0, id;
     int count=0;
      cerr << "\n" << "Calling consensus for " << sample_name << "\n\n";
-	std::vector<string> merged_tag;
-	std::vector<string>::iterator merged_tag_it;
+	std::vector<int> merged_tag;
+	std::vector<int>::iterator merged_tag_it;
 	map<int, map <int, vector<string> > > reads_map;
 	map<int, vector<string> >::iterator reads_map_it;
 	Tag       *ptag;
@@ -749,15 +750,16 @@ int call_consensus(map<string, vector<string> > &merged, map<string, Tag *> ptag
     	
            if (i % 1000 == 0) cerr << "Processing  Merged-Tag " << i << "       \r";
             vector<SNP *> snps; 
-            set<pair<string,string> > alleles_str;
-            set<pair<string,string> >::iterator alleles_str_it;
-            set<string> con_str;
-            set<string>::iterator con_str_it;
+            set<pair<int,string> > alleles_str;
+            set<pair<int,string> >::iterator alleles_str_it;
+            set<int> con_str;
+            set<int>::iterator con_str_it;
     	    merged_tag = merged[keys[i]];
-    	    vector<string>::iterator j;
+    	    vector<int>::iterator j;
     	    vector<string>  reads;
     	     vector<string>  temp_reads;
             map<string,int> alleles;
+            map<string, int> ptag_map;
             char    base;
             vector<SNP *>::iterator snp;
             string allele;
@@ -769,7 +771,7 @@ int call_consensus(map<string, vector<string> > &merged, map<string, Tag *> ptag
 		    int l = 0;
 		     for (j = merged_tag.begin(); j != merged_tag.end(); j++) {     
     		     ptag = ptags[*j];
-         
+                 ptag_map[ptag->seq]=ptag->id;
                 length = ptag->len;
                 int pos=0;
                 for( vec_it = ptag->sample_ids.begin(); vec_it != ptag->sample_ids.end(); vec_it++)
@@ -862,21 +864,21 @@ int call_consensus(map<string, vector<string> > &merged, map<string, Tag *> ptag
 	    alleles[allele]++;
 	    
 	   ctag->alleles[allele]++;
-	    pair<string, string> p(d, allele);
+	    pair<int, string> p( ptag_map[d], allele);
 	    alleles_str.insert(p);
 	    }
 	    
 	    if (snp_cnt == 0)
            {   
                d = reads[0];
-               con_str.insert(d);
+               con_str.insert(ptag_map[d]);
         
            }
             
 	    
            }
            
-
+ptag_map.clear();
          
          for(al_it = alleles.begin(); al_it != alleles.end(); al_it++)
          {
@@ -1302,7 +1304,7 @@ generate_kmers(string seq, int kmer_len, int num_kmers, vector<char *> &kmers)
 }
 
 
-int populate_kmer_hash(string seed, KmerHashMap &kmer_map, vector<char *> &kmer_map_keys, int kmer_len)
+int populate_kmer_hash(string seed,int id, KmerHashMap &kmer_map, vector<char *> &kmer_map_keys, int kmer_len)
 {
    //map<string, Tag *>::iterator it;
     set<string>::iterator it;
@@ -1318,7 +1320,7 @@ int populate_kmer_hash(string seed, KmerHashMap &kmer_map, vector<char *> &kmer_
    generate_kmers(seed, kmer_len, num_kmers, kmers);
         for (int j = 0; j < num_kmers; j++) {
             exists = kmer_map.count(kmers[j]) == 0 ? false : true;
-         kmer_map[kmers[j]].push_back(seed);   
+         kmer_map[kmers[j]].push_back(id);   
             if (exists)
                 delete [] kmers[j];
             else
@@ -1330,9 +1332,17 @@ int populate_kmer_hash(string seed, KmerHashMap &kmer_map, vector<char *> &kmer_
 int 
 free_kmer_hash(KmerHashMap &kmer_map, vector<char *> &kmer_map_keys) 
 {
-    for (uint i = 0; i < kmer_map_keys.size(); i++) {
-        kmer_map[kmer_map_keys[i]].clear();
+    KmerHashMap::iterator kmer_map_it;
+    
+    for (kmer_map_it = kmer_map.begin(); kmer_map_it != kmer_map.end(); ) 
+	{
+		KmerHashMap::iterator this_it = kmer_map_it++;
+		this_it->second.erase(this_it->second.begin(), this_it->second.end());
+  		kmer_map.erase(this_it);
+  			
     }
+
+    
     kmer_map.clear();
 
     for (uint i = 0; i < kmer_map_keys.size(); i++) {
@@ -1344,23 +1354,23 @@ free_kmer_hash(KmerHashMap &kmer_map, vector<char *> &kmer_map_keys)
 }
 
 
-void uclust_dist_calc(std::map<string, Tag *> &ptags,map<string, set<string> > &tags,std::map<std::string, std::set<std::string> > &dist_tags,int distance)
+void uclust_dist_calc(std::map<int, Tag *> &ptags, std::map<int, std::vector<int> > &tags, vector<int> &seed_list,int distance)
 {
 
 std::map<std::string, std::set<std::string> >::iterator tags_it;
 std::map<std::string, std::set<std::string> > seed_dist_list;
 std::set<std::string>::iterator tags_list_it;
-vector<string> seed_list;
+//vector<string> seed_list;
 std::map<int,int> dist_count;
-std::set<std::string>::iterator merged_tags_it;
-std::set<std::string>::iterator merged_tags_it1;
-std::map<string, Tag *>::iterator ptags_it;
+vector<int>::iterator cls_tags_it;
+vector<int>::iterator cls_tags_it1;
+std::map<int, Tag *>::iterator ptags_it;
 
 int d=0, seed_distance = distance*2 ;
 vector<string> keys;
 vector<string> t_keys;
-std::set<std::string> tags_list;
-set<string>::iterator seed_matches_it;
+vector<int> tags_list;
+set<int>::iterator seed_matches_it;
 
 vector<pair <string, string > > seed_pairs; 
 vector<pair <string, string > >::iterator seed_pairs_it; 
@@ -1368,37 +1378,27 @@ vector<pair <string, string > >::iterator seed_pairs_it;
 string tag_1, tag_2;
 Tag *tags_1, *tags_2;  
 
-for ( tags_it = tags.begin();tags_it != tags.end(); tags_it++)
-{
-   keys.push_back(tags_it->first);
+std::map<int, std::vector<int> >::iterator tags_it1;
 
-}
+
 cerr <<"\n" << "Total Number of Clusters: " << tags.size() << "\n";
 cerr << "Calculationg distances between unique stacks within each cluster..." << "\n";
 
-for (int i=0; i <keys.size(); i++)
+
+for ( tags_it1 = tags.begin(); tags_it1 != tags.end(); tags_it1++)
 {
- //cerr << "Calculationg distances between unique stacks within each cluster..." << i << "       \r";
-tags_list = tags[keys[i]];
-seed_list.push_back(keys[i]);
-  
-  for (tags_list_it = tags_list.begin(); tags_list_it != tags_list.end(); tags_list_it++)
-  {
-    t_keys.push_back(*tags_list_it);
 
-  }
-  
-  for ( int j=0; j <t_keys.size(); j++)
+tags_list = tags_it1->second;
+for ( int j=0; j < tags_it1->second.size(); j++)
   {
   
-  tag_1 = t_keys[j];
-
-  for ( int k=0; k <t_keys.size(); k++)
+  tag_1 = ptags[tags_list[j]]->seq;
+    for ( int k=0; k <tags_it1->second.size(); k++)
   {
-    tag_2 = t_keys[k];    
+    tag_2 = ptags[tags_list[k]]->seq;
      if ( j == k)
       {
-        ptags[tag_1]->add_dist(tag_2,0);
+        ptags[tags_list[j]]->add_dist(tags_list[k],0);
         
       }
       else
@@ -1407,15 +1407,19 @@ seed_list.push_back(keys[i]);
       dist_count[d]++;
       if ( d != -1)
       {
-     ptags[tag_1]->add_dist(tag_2,d);
+     ptags[tags_list[j]]->add_dist(tags_list[k],d);
      }
       
       }
-   }      
+   }  
+
+
   }
-  t_keys.clear();
+   
+
+
 }
-cerr << "\n";
+
 
 d =0;
 
@@ -1442,7 +1446,7 @@ tags_2 = ptags[seed_list[m]];
 d = dist(tags_1,tags_2, seed_distance);
 if ( d > 0)
 {
-tags_1->seed_matches.insert(tags_2->seq);
+tags_1->seed_matches.insert(tags_2->id);
  
  
 
@@ -1465,12 +1469,12 @@ for ( seed_matches_it = ptags_it->second->seed_matches.begin(); seed_matches_it 
 l++;
  //cerr << "Calculationg distances between unique stacks among similar clusters ... " << l << "       \r";
 //seed_dist_list[ptags_it->first].insert(*seed_matches_it);
-for ( merged_tags_it = tags[ptags_it->first].begin();merged_tags_it != tags[ptags_it->first].end(); merged_tags_it++)
+for ( cls_tags_it = tags[ptags_it->first].begin();cls_tags_it != tags[ptags_it->first].end(); cls_tags_it++)
   {
- for ( merged_tags_it1 = tags[*seed_matches_it].begin();merged_tags_it1 != tags[*seed_matches_it].end(); merged_tags_it1++)
+ for ( cls_tags_it1 = tags[*seed_matches_it].begin();cls_tags_it1 != tags[*seed_matches_it].end(); cls_tags_it1++)
   {
-      d = dist(*merged_tags_it, *merged_tags_it1, distance);
-      if ( d != -1) ptags[*merged_tags_it]->add_dist(*merged_tags_it1,d);
+      d = dist(ptags[*cls_tags_it], ptags[*cls_tags_it1], distance);
+      if ( d != -1) ptags[*cls_tags_it]->add_dist(*cls_tags_it1,d);
 
     
 
@@ -1484,7 +1488,7 @@ for ( merged_tags_it = tags[ptags_it->first].begin();merged_tags_it != tags[ptag
 
 }
 
-int calc_kmer_distance(std::map<string, Tag *> &ptags, string query,map<string, set<string> > &clusters, KmerHashMap &kmer_map,vector<char *>  &kmer_map_keys, int kmer_len,int num_kmers,int min_hits ) {
+int calc_kmer_distance(std::map<int, Tag *> &ptags, int query, map<int, vector<int> > &clusters, KmerHashMap &kmer_map,vector<char *>  &kmer_map_keys, int kmer_len,int num_kmers,int min_hits ) {
     //
     // Calculate the distance (number of mismatches) between each pair
     // of Radtags. We expect all radtags to be the same length;
@@ -1498,7 +1502,7 @@ int calc_kmer_distance(std::map<string, Tag *> &ptags, string query,map<string, 
 	initialize_kmers(kmer_len, num_kmers, query_kmers);
     tag_1 = ptags[query];
     generate_kmers_lazily(tag_1->seq.c_str(), kmer_len, num_kmers, query_kmers);
-    map<string, int> hits;
+    map<int, int> hits;
     int d;
             //
             // Lookup the occurances of each k-mer in the kmer_map
@@ -1517,7 +1521,7 @@ int calc_kmer_distance(std::map<string, Tag *> &ptags, string query,map<string, 
             // Iterate through the list of hits. For each hit that has more than min_hits
             // check its full length to verify a match.
             //
-            map<string, int>::iterator hit_it;
+            map<int, int>::iterator hit_it;
             for (hit_it = hits.begin(); hit_it != hits.end(); hit_it++) {
 
                 if (hit_it->second >= min_hits)
@@ -1529,7 +1533,7 @@ int calc_kmer_distance(std::map<string, Tag *> &ptags, string query,map<string, 
 
                 if ( d != -1) 
                 {
-                 clusters[tag_2->seq].insert(tag_1->seq);
+                 clusters[tag_2->id].push_back(tag_1->id);
                  break; 
                 }
                 
@@ -1542,15 +1546,16 @@ int calc_kmer_distance(std::map<string, Tag *> &ptags, string query,map<string, 
     return d;
 }
 
-int build_kmer_clusters (std::map<string, Tag *> &ptags) {
+int build_kmer_clusters (std::map<int, Tag *> &ptags) {
 
 
-    KmerHashMap    kmer_map;
-    vector<char *> kmer_map_keys;
-    map<string, Tag *>::iterator it;
-    set<string> seeds;
-    map<string, set<string> > clusters;
-    std::map<std::string, std::set<std::string> > dist_tags;
+   KmerHashMap   kmer_map;
+   //vector<string> kmer_map_keys;
+   vector<char *> kmer_map_keys;
+    map<int, Tag *>::iterator it;
+    vector<int> seeds;
+    map<int, vector<int> > clusters;
+
     int d,i=0;
 
     //
@@ -1572,25 +1577,28 @@ int build_kmer_clusters (std::map<string, Tag *> &ptags) {
     num_kmers = con_len - kmer_len + 1;
     min_hits = 1;
     }
-    seeds.insert(ptags.begin()->second->seq);
-    clusters[ptags.begin()->second->seq].insert(ptags.begin()->second->seq);
-    populate_kmer_hash(ptags.begin()->second->seq, kmer_map, kmer_map_keys, kmer_len);
+    seeds.push_back(ptags.begin()->first);
+    clusters[ptags.begin()->first].push_back(ptags.begin()->first);
+    populate_kmer_hash(ptags.begin()->second->seq, ptags.begin()->first,kmer_map, kmer_map_keys, kmer_len);
     cerr << "Clustering Unique Stacks ..." << "\n";  
     for (it = ptags.begin(); it != ptags.end(); it++)  {
     i++;
     if (i % 10 == 0) 
     cerr << "Calculationg distances for stack  " << i << "       \r";
-    d = calc_kmer_distance(ptags,it->second->seq, clusters,kmer_map,kmer_map_keys,kmer_len,num_kmers,min_hits);
+    d = calc_kmer_distance(ptags,it->first, clusters,kmer_map,kmer_map_keys,kmer_len,num_kmers,min_hits);
      if ( d == -1) 
     {
-    clusters[it->second->seq].insert(it->second->seq);
-     populate_kmer_hash(it->second->seq, kmer_map, kmer_map_keys, kmer_len);
+    clusters[it->first].push_back(it->first);
+     populate_kmer_hash(it->second->seq,it->first, kmer_map, kmer_map_keys, kmer_len);
+     seeds.push_back(it->first);
+   
     }
 
     
     }
+   free_kmer_hash(kmer_map,kmer_map_keys); 
     
-    uclust_dist_calc(ptags,clusters, dist_tags, max_nwk_dist);
+    uclust_dist_calc(ptags,clusters,seeds, max_nwk_dist);
 
    
     return 0;
@@ -1807,11 +1815,11 @@ int write_catalog(map<int, CTag *> &catalog, string path) {
     return 0;
 }
 
-int mergeStacks(std::map<string, Tag *>  &ptags,vector<string> &samples, int dist, int cov,  ofstream &stats_fh)
+int mergeStacks(std::map<int, Tag *>  &ptags,vector<string> &samples, int dist, int cov,  ofstream &stats_fh)
 {
 
 std::map<int, CTag *> ctags;
-std::map<string,set<int> > ctag_alleles_map;
+std::map<int,set<int> > ctag_alleles_map;
 std::vector<int>::iterator vec_it;
 
 std::stringstream ss;
@@ -1831,23 +1839,23 @@ path = path+"/" ;
 string ind_id = "";
 int pos, pos1;	 
 
-std::map<string, std::vector<string> >::iterator merged_it;	 
-std::map<string, Tag *>::iterator ptags_it;
-vector<pair<string, int> >::iterator it2;
-map<string, set<string> >::iterator  matches_it;
-set<string>::iterator matches_val_it;
+std::map<int, std::vector<int> >::iterator merged_it;	 
+std::map<int, Tag *>::iterator ptags_it;
+vector<pair<int, int> >::iterator it2;
+map<int, set<int> >::iterator  matches_it;
+set<int>::iterator matches_val_it;
 map<string, int> pop_samples;
 
 int size =0, merged_sec_cnt=0;
-string li ="";
+int li =-1;
 
 for(int sample=1; sample <= samples.size(); sample++)
 {
 pop_samples[samples[sample-1].substr(0,3)]++;
 
-std::map<string, std::vector<string> > merged;
-map<string, set<string> >  matches;
-std::vector<string> merged_vec;
+std::map<int, std::vector<int> > merged;
+map<int, set<int> >  matches;
+std::vector<int> merged_vec;
 
 for (ptags_it = ptags.begin(); ptags_it != ptags.end(); ptags_it++) {
 
@@ -1901,9 +1909,9 @@ for (it2 = ptags_it->second->dist.begin(); it2 != ptags_it->second->dist.end(); 
  
  }
 size =0;
-li ="";
+li = -1;
 merged_sec_cnt=0;
-vector<string> mkeys;
+vector<int> mkeys;
 
 		for (merged_it = merged.begin(); merged_it != merged.end(); merged_it++) 
 		{
@@ -1995,8 +2003,9 @@ int main (int argc, char* argv[])
 
  map<string,int>::iterator radtags_it;
  std::map<string, Tag *> ptags;
- std::map<string, Tag *> tags;
+ std::map<int, Tag *> tags;
  std::map<string, Tag *>::iterator ptags_it;
+  std::map<int, Tag *>::iterator tags_it;
  Tag *tag;
  DNASeq *seq;
  std::vector <std::string>  files;
@@ -2104,16 +2113,26 @@ for (ptags_it = ptags.begin(); ptags_it != ptags.end(); )
 		if (this_it->second->sample_ids.size() <= min_sam_fil ) 
 			{
  				if (avg_cov <= min_depth) 
-  				 {
+  				 {      
+  				        delete this_it->second; 
   						ptags.erase(this_it);
   				 }
 			}
 
 	}
 
-cerr << "Number of Unique stacks (after filter):" << ptags.size() <<"\n";
+for (ptags_it = ptags.begin(); ptags_it != ptags.end(); ptags_it++) 
+	{
+	 tags[ptags_it->second->id] =ptags_it->second;
+	
+	
+	}
 
-build_kmer_clusters(ptags);
+ptags.clear();
+
+cerr << "Number of Unique stacks (after filter):" << tags.size() <<"\n";
+
+build_kmer_clusters(tags);
  
 if ( psweep)
 { 
@@ -2123,13 +2142,13 @@ for ( int i = 2; i <= max_nwk_dist-2; i++)
 			{
 				cerr << "\n"<< "Maximum Nucleotide distance M:" << "\t" <<i;
 				cerr << "\n"<< "Minimum Coverage m:" << "\t" << j;
-				mergeStacks(ptags, samples,i,j,stats_fh);
+				mergeStacks(tags, samples,i,j,stats_fh);
 			}
 	}
 }
 else
 {
-mergeStacks(ptags, samples,max_nwk_dist-2,min_merge_cov, stats_fh);
+mergeStacks(tags, samples,max_nwk_dist-2,min_merge_cov, stats_fh);
 }
 cerr << "\n"<< "Process Completed !!!" << "\n";
 }

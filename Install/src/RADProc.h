@@ -110,10 +110,10 @@ struct eqstr {
 
 #ifdef HAVE_SPARSEHASH
 typedef sparse_hash_map<DNASeq *, HVal, hash_dnaseq, dnaseq_eqstr> DNASeqHashMap;
-typedef sparse_hash_map<const char *, vector<string>, hash_charptr, eqstr> KmerHashMap;
+typedef sparse_hash_map<const char *, vector<int>, hash_charptr, eqstr> KmerHashMap;
 #else
 typedef unordered_map<DNASeq *, HVal, hash_dnaseq, dnaseq_eqstr> DNASeqHashMap;
-typedef unordered_map<const char *, vector<string>, hash_charptr, eqstr> KmerHashMap;
+typedef unordered_map<const char *, vector<int>, hash_charptr, eqstr> KmerHashMap;
 #endif
 
 //int  load_radtags(DNASeqHashMap &, vector<DNASeq *> &, string);
