@@ -703,7 +703,7 @@ int call_consensus(map<int, vector<int> > &merged, map<int, Tag *> ptags,map<int
      
    for (it = merged.begin(); it != merged.end(); it++) 
        {
-       if ( (it->second.size() >= 1) && (it ->second.size() <= max_stacks) )
+        if (it->second.size() > 0) 
     
         {
     	keys.push_back(it->first);
@@ -1548,37 +1548,36 @@ int calc_kmer_distance(std::map<int, Tag *> &ptags, int query, map<int, vector<i
 
 int build_kmer_clusters (std::map<int, Tag *> &ptags) {
 
-
-   KmerHashMap   kmer_map;
+KmerHashMap   kmer_map;
    //vector<string> kmer_map_keys;
    vector<char *> kmer_map_keys;
     map<int, Tag *>::iterator it;
     vector<int> seeds;
     map<int, vector<int> > clusters;
+     Tag *tags_1, *tags_2;  
+    vector<int> keys;
 
-    int d,i=0;
+    int d,i=0,l=0;;
+ int con_len   = strlen(ptags.begin()->second->seq.c_str());
 
+if ( con_len > 50)
+ {
     //
     // Calculate the number of k-mers we will generate. If kmer_len == 0,
     // determine the optimal length for k-mers.
     //
-    int con_len   = strlen(ptags.begin()->second->seq.c_str());
+   
     int kmer_len,num_kmers,min_hits;
     
-     if (max_nwk_dist <= 6)
-     {
-     kmer_len = determine_kmer_length(con_len, max_nwk_dist);
-     num_kmers = con_len - kmer_len + 1;
-     min_hits = calc_min_kmer_matches(kmer_len, max_nwk_dist, con_len, true);
-     }
-    else
-    { 
-    kmer_len = 25;
+    
+    kmer_len = determine_kmer_length(con_len, max_nwk_dist);
     num_kmers = con_len - kmer_len + 1;
-    min_hits = 1;
-    }
+    min_hits = calc_min_kmer_matches(kmer_len, max_nwk_dist, con_len, true);
+    
+
+    
     seeds.push_back(ptags.begin()->first);
-    clusters[ptags.begin()->first].push_back(ptags.begin()->first);
+   // clusters[ptags.begin()->first].push_back(ptags.begin()->first);
     populate_kmer_hash(ptags.begin()->second->seq, ptags.begin()->first,kmer_map, kmer_map_keys, kmer_len);
     cerr << "Clustering Unique Stacks ..." << "\n";  
     for (it = ptags.begin(); it != ptags.end(); it++)  {
@@ -1597,8 +1596,73 @@ int build_kmer_clusters (std::map<int, Tag *> &ptags) {
     
     }
    free_kmer_hash(kmer_map,kmer_map_keys); 
-    
-    uclust_dist_calc(ptags,clusters,seeds, max_nwk_dist);
+}   
+   
+else
+{   
+ for (it = ptags.begin(); it != ptags.end(); it++)  {
+
+seeds.push_back(it->first);
+break;
+}
+
+
+ for (it = ptags.begin(); it != ptags.end(); it++)  {
+ 
+ keys.push_back(it->first);
+ 
+ }
+ int j=0;
+ 
+ for (int k = 0; k < keys.size(); k++)
+ {
+  j=0;
+  tags_1 = ptags[keys[k]];
+ l++;
+if (l % 10 == 0) 
+cerr << "Calculationg distances for stack  " << l << "       \r";
+ 
+
+ 
+ 
+ #pragma omp parallel private(tags_2)
+ { 
+  
+#pragma omp for  schedule(dynamic)
+ for ( int i=0; i <  seeds.size(); i++)
+ {
+ tags_2 = ptags[seeds[i]];
+ d = dist(tags_1,tags_2, max_nwk_dist);
+ if ( ( d >= 0) && (j == 0) )
+{
+
+ clusters[tags_2->id].push_back(tags_1->id);
+ j=1;
+  //break;
+
+ } 
+
+ 
+ }
+ }
+ 
+ 
+
+
+if ( j == 0)
+{  
+clusters[tags_1->id].push_back(tags_1->id);
+
+seeds.push_back(tags_1->id);
+}
+
+ 
+ }
+} 
+ 
+
+cout << "\n clusters: " <<  clusters.size() << "\n";   
+uclust_dist_calc(ptags,clusters,seeds, max_nwk_dist);
 
    
     return 0;
@@ -1821,7 +1885,7 @@ int mergeStacks(std::map<int, Tag *>  &ptags,vector<string> &samples, int dist, 
 std::map<int, CTag *> ctags;
 std::map<int,set<int> > ctag_alleles_map;
 std::vector<int>::iterator vec_it;
-
+ std::map<int, std::vector<int> >::iterator it;  
 std::stringstream ss;
 ss << dist;
 string dist_str = ss.str();
@@ -1894,10 +1958,9 @@ for (it2 = ptags_it->second->dist.begin(); it2 != ptags_it->second->dist.end(); 
   
   else if  ( ( ptags_it->second->cov.at(pos) < cov) && ( it2->second <= dist+2)) 	
                 {
-                  if (ptags[it2->first]->cov.at(pos1) >= cov)
+                  if ((ptags_it->second->dist.size() > 1 ) && (ptags[it2->first]->cov.at(pos1) >= cov))
                   {
                     matches[ptags_it->first].insert(it2->first);
-                    continue;
                     
                    } 
                     
@@ -1946,13 +2009,22 @@ vector<int> mkeys;
 		}
 	
  
+
+     
+   for (it = merged.begin(); it != merged.end(); it++) 
+       {
+       if (it ->second.size() > max_stacks)
+        merged[it ->first].clear();
+       
+        
+       }
+ 
   for (matches_it=matches.begin(); matches_it!=matches.end(); matches_it++)
        {
        
        for ( matches_val_it = matches_it->second.begin(); matches_val_it != matches_it->second.end(); matches_val_it++)
          {
-         if ( merged.find(*matches_val_it) == merged.end()) continue; 
-          else
+          if ( merged[*matches_val_it].size() > 0)
           {
              merged[*matches_val_it].push_back(matches_it->first);
              merged_sec_cnt++;
@@ -2110,13 +2182,13 @@ for (ptags_it = ptags.begin(); ptags_it != ptags.end(); )
 		sum_cov = 0;
 	
 	    	
-		if (this_it->second->sample_ids.size() <= min_sam_fil ) 
+		if (this_it->second->sample_ids.size() <= min_sam_fil )    
 			{
- 				if (avg_cov <= min_depth) 
-  				 {      
+ 			     if (avg_cov <= min_depth) 
+  				    {      
   				        delete this_it->second; 
   						ptags.erase(this_it);
-  				 }
+  				    }
 			}
 
 	}
