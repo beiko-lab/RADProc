@@ -1978,11 +1978,8 @@ vector<int> mkeys;
 
 		for (merged_it = merged.begin(); merged_it != merged.end(); merged_it++) 
 		{
-			
-			if ( merged_it->second.size() <= 3) {
+		
 			mkeys.push_back(merged_it->first);
-			}
-			
 		}
 		
 		for (int k=0; k < mkeys.size(); k++)
@@ -2011,10 +2008,10 @@ vector<int> mkeys;
  
 
      
-   for (it = merged.begin(); it != merged.end(); it++) 
+   for (merged_it = merged.begin(); merged_it != merged.end(); merged_it++) 
        {
-       if (it ->second.size() > max_stacks)
-        merged[it ->first].clear();
+       if (merged_it ->second.size() > max_stacks)
+        merged[merged_it->first].clear();
        
         
        }
@@ -2113,7 +2110,7 @@ for ( files_it = files.begin(); files_it != files.end(); files_it++)
   		if ( (files_it->find("fq") != std::string::npos) || (files_it->find("fa") != std::string::npos) || (files_it->find("gz") != std::string::npos))
 			{  
     			i=0;
-    			old_id =0; 
+    			//old_id =0; 
     			
     			map<string,int> radtags;
     			string filename = in_file+"/"+ *files_it;
@@ -2182,13 +2179,13 @@ for (ptags_it = ptags.begin(); ptags_it != ptags.end(); )
 		sum_cov = 0;
 	
 	    	
-		if (this_it->second->sample_ids.size() <= min_sam_fil )    
+		if (this_it->second->sample_ids.size() <= min_sam_fil ) 
 			{
- 			     if (avg_cov <= min_depth) 
-  				    {      
+ 				if (avg_cov <= min_depth) 
+  				 {      
   				        delete this_it->second; 
   						ptags.erase(this_it);
-  				    }
+  				 }
 			}
 
 	}
@@ -2201,6 +2198,7 @@ for (ptags_it = ptags.begin(); ptags_it != ptags.end(); ptags_it++)
 	}
 
 ptags.clear();
+
 
 cerr << "Number of Unique stacks (after filter):" << tags.size() <<"\n";
 
