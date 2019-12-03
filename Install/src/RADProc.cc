@@ -627,7 +627,7 @@ for (int i = 0; i < (int)keys.size(); i++) {
     	consensus[keys[i]]=con;    
     
    }
-
+return 0;
 }
 
 
@@ -2043,7 +2043,7 @@ vector<int> mkeys;
 
 write_catalog(ctags, path);
 ctags.clear();
-
+return 0;
 }
 
 
