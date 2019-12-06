@@ -679,7 +679,7 @@ int call_consensus(map<int, vector<int> > &merged, map<int, Tag *> ptags,map<int
     
     snp_file = path +sample_name+".snps.tsv";
     all_file = path +sample_name+".alleles.tsv";
-    mod_file = path +sample_name+".models.tsv";
+    //mod_file = path +sample_name+".models.tsv";
     tags_file = path +sample_name+".tags.tsv";
     //matches_file = path +sample_name+".matches.tsv";
      
@@ -720,7 +720,7 @@ int call_consensus(map<int, vector<int> > &merged, map<int, Tag *> ptags,map<int
     strftime(date, 32, "%F %T", timeinfo);   
     snp_s.open(snp_file.c_str());
     al.open(all_file.c_str());
-    mods.open(mod_file.c_str());
+    //mods.open(mod_file.c_str());
     tags.open(tags_file.c_str());
    // mat.open(matches_file.c_str());
     
@@ -882,8 +882,12 @@ ptag_map.clear();
          
          for(al_it = alleles.begin(); al_it != alleles.end(); al_it++)
          {
-         
-         al << "0" << "\t" << sample_id-1 << "\t" << i <<"\t"<<al_it->first <<"\t"<< ((double)al_it->second/height)*100 <<"\t" <<al_it->second <<"\n";
+        
+         al << sample_id-1 << "\t"
+           << i <<"\t"
+           <<al_it->first 
+           <<"\t"<< ((double)al_it->second/height)*100 <<"\t" 
+           <<al_it->second <<"\n";
 	
          }
          
@@ -1032,19 +1036,26 @@ ptag_map.clear();
       if ( snps_it->second.size() > 0)
       {
        num_loci++;
-     mods<< "0" << "\t" << sample_id-1<< "\t" << snps_it->first<<"\t"  << ""<< "\t"  << 0 << "\t"  << "+" << "\t" << "consensus\t" << "\t\t";
-    tags<< "0" << "\t" << sample_id-1<< "\t" << snps_it->first<<"\t"  << ""<< "\t"  << 0 << "\t"  << "+" << "\t" << "consensus\t" << "\t\t";
 
-    for (snps_it1 = snps_it->second.begin();snps_it1 != snps_it->second.end();snps_it1++)
-	{
-       mods << (*snps_it1)->rank_1 ;
-       tags << (*snps_it1)->rank_1 ;
-    }  
+             
+         tags<< sample_id-1<< "\t" 
+            << snps_it->first<<"\t"  
+            << "consensus\t" <<"\t"
+            << "\t";
+            for (snps_it1 = snps_it->second.begin();snps_it1 != snps_it->second.end();snps_it1++)
+	        {
+             tags << (*snps_it1)->rank_1 ;
+           }  
+           tags << "\t" << "0" << "\t"
+                << "0" << "\t"
+                << "0" << "\n";
+        
     
-     mods << "\t" << "0" << "\t" << "0" << "\t" << "0" <<"\t" << "0"<<"\n"; 
-     tags << "\t" << "0" << "\t" << "0" << "\t" << "0" <<"\t" << "0"<<"\n";
-     mods<< "0" << "\t" << sample_id-1<< "\t" << snps_it->first<<"\t"  << ""<< "\t"  << 0 << "\t"  << "+" << "\t" << "model\t"    << "\t\t" ;
-     tags<< "0" << "\t" << sample_id-1<< "\t" << snps_it->first<<"\t"  << ""<< "\t"  << 0 << "\t"  << "+" << "\t" << "model\t"    << "\t\t" ;
+        tags << sample_id-1<< "\t" 
+           << snps_it->first<<"\t"
+            << "model\t"    
+            << "\t\t" ;
+
     
     for (snps_it1 = snps_it->second.begin();snps_it1 != snps_it->second.end();snps_it1++)
 	{
@@ -1056,32 +1067,31 @@ ptag_map.clear();
            if ( snp_cnt > 3) tot_loci_more_3_snps++;
            poly_flag=1;
          }
-      snp_s<< "0" << "\t" << sample_id-1<< "\t" << snps_it->first<<"\t" << (*snps_it1)->col  << "\t";  
+      snp_s<< sample_id-1<< "\t" 
+      << snps_it->first<<"\t" 
+      << (*snps_it1)->col  << "\t";  
              switch((*snps_it1)->type) {
             case 0:
                 snp_s << "E\t";
-                mods << "E";
                 tags << "E";
                 break;
             case 1:
                 snp_s << "O\t";
-                mods << "O";
                 tags << "O";
                 break;
             default:
                 snp_s << "U\t";
-                mods << "U";
                 tags << "U";
                 break;
             }  
-	 snp_s << (*snps_it1)->lratio << "\t" << (*snps_it1)->rank_1  << "\t" << (*snps_it1)->rank_2 << "\n";
+	 snp_s << (*snps_it1)->lratio << "\t" 
+	     << (*snps_it1)->rank_1  << "\t" 
+	     << (*snps_it1)->rank_2 << "\t\t\n";
 	delete *snps_it1;
 	}
-	mods << "\t\t\t\t"<<"\n"; 
-	tags << "\t\t\t\t"<<"\n"; 
+    tags << "\t\t\t\n"; 
 	num_snps[snp_cnt]++;    
     id = 0;
-   
    
    for ( reads_map_it = reads_map[snps_it->first].begin(); reads_map_it != reads_map[snps_it->first].end(); reads_map_it++)
     {
@@ -1090,17 +1100,13 @@ ptag_map.clear();
                 for ( int k =0; k < reads_map_it->second.size();k++)
                 {
                               
-                tags << "0"       << "\t"
-                     << sample_id-1    << "\t"
+                tags << sample_id-1    << "\t"
                      << snps_it->first << "\t"
-                     << "\t" // chr
-                     << "\t" // bp
-                     << "\t" // strand
                      << "primary\t" 
                      << id << "\t" 
                      << k << "\t" 
                      << *reads_map_it->second.begin()
-                     << "\t\t\t\t\n";
+                     << "\t\t\t\n";
                 }   
                 }
                 else
@@ -1108,17 +1114,13 @@ ptag_map.clear();
                 for ( int k =0; k < reads_map_it->second.size();k++)
                 {
                 
-                tags << "0"       << "\t"
-                     << sample_id-1    << "\t"
+                tags << sample_id-1    << "\t"
                      << snps_it->first << "\t"
-                     << "\t" // chr
-                     << "\t" // bp
-                     << "\t" // strand
                      << "secondary\t" 
                      << "\t" 
                      << k << "\t" 
                      << *reads_map_it->second.begin()
-                     << "\t\t\t\t\n";
+                     << "\t\t\t\n";
                 }   
                 id--;
                 
@@ -1706,33 +1708,36 @@ write_simple_output(CTag *tag, ofstream &cat_file, ofstream &snp_file, ofstream 
     }
     sources = sources.substr(0, sources.length() - 1);
     if ( sources == "") return 0;
-    cat_file << 
-	"0"          << "\t" << 
-	batch_id     << "\t" <<
-	tag->id     << "\t" <<
-     "\t" <<
-    "0" << "\t" <<
-    "+" << "\t" <<
-	"consensus"  << "\t" <<
-	"0"          << "\t" <<
-	sources      << "\t" <<
-	tag->con     << "\t" << 
-        0            << "\t" << 
-        0            << "\t" <<
-        0            << "\t" <<
-        0            << "\n";
-
+    cat_file << "0"          << "\t"  
+         << tag->id      << "\t" 
+         << "consensus" << "\t" 
+         <<"0"          << "\t" 
+         <<sources      << "\t" 
+         <<tag->con     << "\t" 
+         <<0            << "\t" 
+         <<0            << "\t"
+         <<0            << "\n";             
     //
     // Output the SNPs associated with the catalog tag
     //
     for (snp_it = tag->snps.begin(); snp_it != tag->snps.end(); snp_it++) {
-   if ((*snp_it)->type == snp_type_het)
-    {
-	snp_file << "0"    << "\t" << 
-	    batch_id       << "\t" <<
-	    tag->id        << "\t" << 
-	    (*snp_it)->col << "\t";
-    snp_file << "E\t";    
+  
+  
+    snp_file << "0"            << "\t"
+                 << tag->id        << "\t"
+                 << (*snp_it)->col << "\t";
+
+        switch((*snp_it)->type) {
+        case snp_type_het:
+            snp_file << "E\t";
+            break;
+        case snp_type_hom:
+            snp_file << "O\t";
+            break;
+        default:
+            snp_file << "U\t";
+            break;
+        }  
 	
 	snp_file << 
 	    (*snp_it)->lratio << "\t" << 
@@ -1740,7 +1745,7 @@ write_simple_output(CTag *tag, ofstream &cat_file, ofstream &snp_file, ofstream 
 	    (*snp_it)->rank_2 << "\t" << 
 	    ((*snp_it)->rank_3 == 0 ? '-' : (*snp_it)->rank_3) << "\t" << 
 	    ((*snp_it)->rank_4 == 0 ? '-' : (*snp_it)->rank_4) << "\n";
-	 }  
+	 
 	 delete *snp_it;
     }
    
@@ -1748,18 +1753,13 @@ write_simple_output(CTag *tag, ofstream &cat_file, ofstream &snp_file, ofstream 
     // Output the alleles associated with the two matched tags
     //
     for (all_it = tag->alleles.begin(); all_it != tag->alleles.end(); all_it++)
-    {
-	all_file << 
-	    "0"           << "\t" << 
-	    batch_id      << "\t" <<
-	    tag->id      << "\t" <<
-	    all_it->first.c_str() << "\t" <<
-            "0"           << "\t" <<    
-            "0"           << "\n";     
-   }
+        all_file << "0"           << "\t"
+                 << tag->id       << "\t"
+                 << all_it->first.c_str() << "\t"
+                 << "0"           << "\t"    // These two fields are used in the
+                 << "0"           << "\n";  
     return 0;
 }
-
 int write_catalog(map<int, CTag *> &catalog, string path) {
     map<int, CTag *>::iterator i;
     CTag  *tag;
@@ -1771,11 +1771,11 @@ int write_catalog(map<int, CTag *> &catalog, string path) {
     // Parse the input file names to create the output file
     //
     stringstream prefix; 
-    prefix << path << "batch_1";
+    //prefix << path << "batch_1";
 
-    string tag_file = prefix.str() + ".catalog.tags.tsv";
-    string snp_file = prefix.str() + ".catalog.snps.tsv";
-    string all_file = prefix.str() + ".catalog.alleles.tsv";
+    string tag_file = path+"catalog.tags.tsv";
+    string snp_file = path+"catalog.snps.tsv";
+    string all_file = path+"catalog.alleles.tsv";
 
     if (gzip) {
         tag_file += ".gz";
