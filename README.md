@@ -57,10 +57,7 @@ RADProc -t infile_type -f file_path [-o path][-a psweep][-M max_dist] [-m min_co
   
   h: Display this help messsage.
   
-Input File
-----------
-Input filenmes should be 3 character population code followed by the sample ID.
-Example:  AAA1.fq, AAA2.fq, BBB1.fq.
+
 
 
 
